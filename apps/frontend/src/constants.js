@@ -7,7 +7,7 @@ export const DEFAULT_BRANDING = {
   schoolName: 'SMAN 1 Sooko',
   schoolTagline: 'Portal Informasi Sekolah',
   footerCopy: '© 2026 SMAN 1 Sooko Mojokerto. All Rights Reserved.',
-  itTeamLabel: 'TIM IT',
+  itTeamLabel: '',
   logoUrl: '/icon.png',
 };
 

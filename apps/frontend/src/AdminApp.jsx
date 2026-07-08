@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL, DEFAULT_BRANDING } from './constants';
-import { applyBrandingToDocument, fetchBranding, mergeBranding, resolveLogoUrl } from './branding';
+import { applyBrandingToDocument, fetchBranding, mergeBranding, resolveItSupportLabel, resolveLogoUrl } from './branding';
 
 export default function AdminApp() {
   // App views: 'loading' | 'login' | 'dashboard'
@@ -1105,7 +1105,6 @@ export default function AdminApp() {
               <img src={logoSrc} alt="Logo Footer" className="admin-site-footer-logo" />
               <p>
                 {branding.footerCopy}
-                {branding.itTeamLabel ? ` ${branding.itTeamLabel}.` : ''}
               </p>
             </div>
             <a href="https://sman1sooko.sch.id" target="_blank" rel="noreferrer" className="admin-site-footer-link">Portal Sekolah</a>
@@ -1677,7 +1676,8 @@ export default function AdminApp() {
               Identitas Portal Sekolah
             </h3>
             <p className="text-body-md text-on-surface-variant">
-              Logo, nama sekolah, dan label tim IT akan tampil di portal murid dan panel admin.
+              Logo dan nama sekolah tampil di portal murid dan panel admin. Nama tim IT dipakai sebagai
+              bantuan teknis di area Tenaga Kurikulum, bukan di footer.
             </p>
 
             <form onSubmit={handleSaveBranding} className="flex flex-col gap-4">
@@ -1717,15 +1717,18 @@ export default function AdminApp() {
                   />
                 </div>
                 <div className="flex flex-col gap-2 md:col-span-2">
-                  <label className="admin-form-label" htmlFor="itTeamLabel">Label Tim IT <span className="text-on-surface-variant font-normal normal-case">(opsional)</span></label>
+                  <label className="admin-form-label" htmlFor="itTeamLabel">Nama Tim IT / Bantuan Teknis <span className="text-on-surface-variant font-normal normal-case">(opsional)</span></label>
                   <input
                     id="itTeamLabel"
                     type="text"
                     value={brandingForm.itTeamLabel}
                     onChange={(e) => handleBrandingFieldChange('itTeamLabel', e.target.value)}
                     className="input-taktil input-taktil--sm"
-                    placeholder="Contoh: TIM IT (kosongkan jika tidak perlu)"
+                    placeholder="Kosongkan untuk default: Tim IT [Nama Sekolah]"
                   />
+                  <p className="text-body-md text-on-surface-variant m-0">
+                    Tampil di bantuan portal murid: <strong>{resolveItSupportLabel({ ...brandingForm, schoolName: brandingForm.schoolName || branding.schoolName })}</strong>
+                  </p>
                 </div>
               </div>
 

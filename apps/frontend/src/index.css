@@ -1601,7 +1601,28 @@ h1, h2, h3, h4, h5, h6 {
 .help-modal-footer {
   padding: 0 1.25rem 1.25rem;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.help-modal-support {
+  margin: 0;
+  max-width: 28rem;
+  text-align: center;
+  font-family: var(--font-family);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--on-surface-variant);
+}
+
+.help-modal-support strong {
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.student-login-help-support {
+  margin: 0;
 }
 
 .help-modal-btn {

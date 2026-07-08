@@ -28,7 +28,7 @@ const BRANDING_DEFAULTS = {
   schoolName: 'SMAN 1 Sooko',
   schoolTagline: 'Portal Informasi Sekolah',
   footerCopy: '© 2026 SMAN 1 Sooko Mojokerto. All Rights Reserved.',
-  itTeamLabel: 'TIM IT',
+  itTeamLabel: '',
   logoUrl: '/icon.png',
 } as const;
 
@@ -129,7 +129,7 @@ async function getBranding() {
     schoolName: await getConfigValue(BRANDING_CONFIG_KEYS.schoolName, BRANDING_DEFAULTS.schoolName),
     schoolTagline: await getConfigValue(BRANDING_CONFIG_KEYS.schoolTagline, BRANDING_DEFAULTS.schoolTagline),
     footerCopy: await getConfigValue(BRANDING_CONFIG_KEYS.footerCopy, BRANDING_DEFAULTS.footerCopy),
-    itTeamLabel: await getConfigValue(BRANDING_CONFIG_KEYS.itTeamLabel, BRANDING_DEFAULTS.itTeamLabel),
+    itTeamLabel: await getConfigValue(BRANDING_CONFIG_KEYS.itTeamLabel, ''),
     logoUrl: logoPath || BRANDING_DEFAULTS.logoUrl,
   };
 }

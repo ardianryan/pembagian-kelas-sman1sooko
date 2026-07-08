@@ -14,6 +14,14 @@ export function mergeBranding(data) {
   };
 }
 
+export function resolveItSupportLabel(branding) {
+  const custom = String(branding?.itTeamLabel ?? '').trim();
+  if (custom) return custom;
+
+  const schoolName = String(branding?.schoolName || DEFAULT_BRANDING.schoolName).trim();
+  return `Tim IT ${schoolName}`;
+}
+
 export async function fetchBranding() {
   try {
     const res = await fetch(`${API_URL}/branding`);
