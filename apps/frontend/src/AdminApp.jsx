@@ -1677,7 +1677,7 @@ export default function AdminApp() {
             </h3>
             <p className="text-body-md text-on-surface-variant">
               Logo dan nama sekolah tampil di portal murid dan panel admin. Nama tim IT dipakai sebagai
-              bantuan teknis di area Tenaga Kurikulum, bukan di footer.
+              kontak bantuan di halaman login murid, bukan di footer.
             </p>
 
             <form onSubmit={handleSaveBranding} className="flex flex-col gap-4">
