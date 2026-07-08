@@ -37,6 +37,25 @@ const OBSTACLE_TYPES = ['book', 'bag', 'cone'];
 const RUNNER_FEET_OFFSET = 42;
 const GROUND_BAND = 42;
 const RUNNER_DRAW_SCALE = 1.2;
+const MOBILE_BREAKPOINT = 640;
+const MOBILE_VIEW_SCALE = 0.84;
+
+function getPlayTuning(width) {
+  const isMobile = width < MOBILE_BREAKPOINT;
+  return {
+    isMobile,
+    viewScale: isMobile ? MOBILE_VIEW_SCALE : 1,
+    speed: isMobile ? 3.1 : 4.2,
+    maxSpeed: isMobile ? 5.8 : 8.5,
+    speedGrowth: isMobile ? 0.0009 : 0.0015,
+    spawnPadding: isMobile ? 100 : 20,
+    spawnGapMin: isMobile ? 130 : 95,
+    spawnGapMax: isMobile ? 215 : 170,
+    obstacleSizeScale: isMobile ? 0.88 : 1,
+    firstSpawnDelay: isMobile ? 140 : 70,
+    initialSpawnGap: isMobile ? 155 : 110,
+  };
+}
 
 function randomBetween(min, max) {
   return min + Math.random() * (max - min);
@@ -215,19 +234,27 @@ function drawParticle(ctx, particle) {
   ctx.globalAlpha = 1;
 }
 
-function createObstacle(canvasWidth, groundY, speed) {
+function createObstacle(spawnX, groundY, speed, sizeScale = 1) {
   const type = OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)];
-  const height = type === 'cone' ? randomBetween(28, 36) : randomBetween(24, 34);
-  const width = type === 'bag' ? randomBetween(22, 28) : randomBetween(16, 24);
+  const baseHeight = type === 'cone' ? randomBetween(28, 36) : randomBetween(24, 34);
+  const baseWidth = type === 'bag' ? randomBetween(22, 28) : randomBetween(16, 24);
   return {
     type,
-    x: canvasWidth + 20,
+    x: spawnX,
     y: groundY,
-    width,
-    height,
+    width: baseWidth * sizeScale,
+    height: baseHeight * sizeScale,
     passed: false,
     speed,
   };
+}
+
+function applyWorldViewTransform(ctx, state) {
+  if (state.viewScale === 1) return false;
+  ctx.translate(0, state.groundLine);
+  ctx.scale(state.viewScale, state.viewScale);
+  ctx.translate(0, -state.groundLine);
+  return true;
 }
 
 function rectsOverlap(a, b) {
@@ -257,15 +284,16 @@ export default function DinoRunnerGame() {
   const initGameState = useCallback((width, height, started = false) => {
     const groundLine = height - GROUND_BAND;
     const standY = groundLine - RUNNER_FEET_OFFSET;
+    const tuning = getPlayTuning(width);
     return {
       width,
       height,
       groundLine,
       groundY: groundLine,
+      worldWidth: width / tuning.viewScale,
       started,
       frame: 0,
-      speed: 4.2,
-      maxSpeed: 8.5,
+      ...tuning,
       gravity: 0.52,
       jumpVelocity: -10.5,
       runner: {
@@ -296,7 +324,7 @@ export default function DinoRunnerGame() {
       particles: [],
       popups: [],
       spawnTimer: 0,
-      nextSpawn: 110,
+      nextSpawn: tuning.initialSpawnGap,
       score: 0,
       streak: 0,
       alive: true,
@@ -383,10 +411,14 @@ export default function DinoRunnerGame() {
     return ctx;
   }, []);
 
-  const syncGroundLayout = useCallback((state, height) => {
+  const syncGroundLayout = useCallback((state, width, height) => {
+    const tuning = getPlayTuning(width);
+    state.width = width;
     state.height = height;
     state.groundLine = height - GROUND_BAND;
     state.groundY = state.groundLine;
+    state.worldWidth = width / tuning.viewScale;
+    Object.assign(state, tuning);
     state.runner.standY = state.groundLine - RUNNER_FEET_OFFSET;
     if (state.runner.onGround) {
       state.runner.y = state.runner.standY;
@@ -453,14 +485,19 @@ export default function DinoRunnerGame() {
       };
 
       if (state.started && state.alive) {
-        state.speed = Math.min(state.maxSpeed, state.speed + 0.0015);
+        state.speed = Math.min(state.maxSpeed, state.speed + state.speedGrowth);
         state.groundOffset = (state.groundOffset + state.speed) % 24;
         state.spawnTimer += 1;
 
-        if (state.spawnTimer >= state.nextSpawn) {
-          state.obstacles.push(createObstacle(state.width, state.groundY, state.speed));
+        if (state.spawnTimer >= state.nextSpawn && state.frame > state.firstSpawnDelay) {
+          state.obstacles.push(createObstacle(
+            state.worldWidth + state.spawnPadding,
+            state.groundY,
+            state.speed,
+            state.obstacleSizeScale
+          ));
           state.spawnTimer = 0;
-          state.nextSpawn = randomBetween(95, 170) - state.speed * 4;
+          state.nextSpawn = randomBetween(state.spawnGapMin, state.spawnGapMax) - state.speed * 3;
         }
 
         state.obstacles.forEach((obstacle) => {
@@ -543,13 +580,17 @@ export default function DinoRunnerGame() {
 
       state.clouds.forEach((cloud) => drawCloud(ctx, cloud));
 
+      ctx.save();
+      const worldScaled = applyWorldViewTransform(ctx, state);
+      const worldWidth = state.worldWidth;
+
       // Ground
       ctx.fillStyle = COLORS.groundLine;
-      ctx.fillRect(0, state.groundLine, state.width, 3);
+      ctx.fillRect(0, state.groundLine, worldWidth, 3);
       ctx.fillStyle = COLORS.ground;
-      ctx.fillRect(0, state.groundLine + 3, state.width, state.height - state.groundLine);
+      ctx.fillRect(0, state.groundLine + 3, worldWidth, state.height - state.groundLine);
 
-      for (let gx = -24; gx < state.width + 24; gx += 24) {
+      for (let gx = -24; gx < worldWidth + 24; gx += 24) {
         const stripeX = gx - state.groundOffset;
         ctx.fillStyle = state.rainbowMode
           ? COLORS.particle[Math.floor((stripeX / 24) % COLORS.particle.length)]
@@ -574,6 +615,7 @@ export default function DinoRunnerGame() {
         ctx.fillText(popup.text, popup.x, popup.y);
         ctx.globalAlpha = 1;
       });
+      if (worldScaled) ctx.restore();
 
       if (state.started && !state.alive) {
         ctx.fillStyle = 'rgba(0, 10, 61, 0.35)';
@@ -606,8 +648,7 @@ export default function DinoRunnerGame() {
       const state = gameRef.current;
       if (!canvas || !size || !state) return;
       applyCanvasSize(canvas, size.width, size.height);
-      state.width = size.width;
-      syncGroundLayout(state, size.height);
+      syncGroundLayout(state, size.width, size.height);
     };
 
     window.addEventListener('resize', handleResize);
