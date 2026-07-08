@@ -1,5 +1,6 @@
-export const API_BASE = 'http://localhost:3000';
-export const API_URL = `${API_BASE}/api`;
+const rawApiBase = import.meta.env.VITE_API_BASE ?? 'http://localhost:3000';
+export const API_BASE = rawApiBase.replace(/\/$/, '');
+export const API_URL = API_BASE ? `${API_BASE}/api` : '/api';
 export const APP_NAME = 'Pengumuman Pembagian Kelas';
 
 export const DEFAULT_BRANDING = {

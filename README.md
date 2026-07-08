@@ -78,9 +78,28 @@ npm run dev:frontend
 ## Build Production
 
 ```bash
-npm run build:backend
-npm run build:frontend
+npm run build
 ```
+
+## Deploy ke VPS / aaPanel
+
+Instalasi production satu perintah (setelah `.env` backend diisi):
+
+```bash
+cp apps/backend/.env.example apps/backend/.env
+# edit DATABASE_URL & FRONTEND_URL
+chmod +x deploy/*.sh
+npm run deploy:install
+```
+
+Lalu atur Nginx di aaPanel mengikuti `deploy/nginx-site.conf`.
+
+Panduan lengkap: **[deploy/README.md](deploy/README.md)**
+
+| Perintah | Fungsi |
+|----------|--------|
+| `npm run deploy:install` | Instal pertama kali (build + DB + PM2) |
+| `npm run deploy:update` | Update kode + rebuild + restart API |
 
 ## API Utama
 

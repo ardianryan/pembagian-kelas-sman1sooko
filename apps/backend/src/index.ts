@@ -134,8 +134,9 @@ function sanitizeUploadFilename(filename: string) {
 }
 
 // Enable CORS so the React frontend can talk to the API
+const corsOrigin = process.env.FRONTEND_URL?.trim() || '*';
 app.use('/*', cors({
-  origin: '*',
+  origin: corsOrigin,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
 }));

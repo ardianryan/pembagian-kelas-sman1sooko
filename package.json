@@ -8,9 +8,13 @@
   "scripts": {
     "dev:backend": "npm run dev --workspace=apps/backend",
     "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "build": "npm run build:backend && npm run build:frontend",
     "build:backend": "npm run build --workspace=apps/backend",
     "build:frontend": "npm run build --workspace=apps/frontend",
+    "start:api": "npm run start --workspace=apps/backend",
     "db:push": "npm run db:push --workspace=apps/backend",
-    "db:generate": "npm run db:generate --workspace=apps/backend"
+    "db:generate": "npm run db:generate --workspace=apps/backend",
+    "deploy:install": "bash deploy/install.sh",
+    "deploy:update": "bash deploy/update.sh"
   }
 }
