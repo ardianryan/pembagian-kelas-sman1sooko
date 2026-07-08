@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+apps/backend/dist/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Uploads & generated assets
+apps/backend/uploads/
+
+# Logs
+*.log
+logs/
+
+# OS & editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Vite cache
+**/.vite/
+
+# Sensitive / local test data (contains real student records)
+test_students.xlsx
+
+# Scratch & design exports
+scratch/
+stitch_sman1sooko_class_distribution_app/
+*.zip
+
+# Local tooling & agent skills
+skills-lock.json
+.agents/
