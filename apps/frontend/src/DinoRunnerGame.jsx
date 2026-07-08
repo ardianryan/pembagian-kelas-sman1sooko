@@ -249,11 +249,12 @@ export default function DinoRunnerGame() {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(loadHighScore);
   const [gameOver, setGameOver] = useState(false);
+  const [awaitingStart, setAwaitingStart] = useState(true);
   const [milestoneText, setMilestoneText] = useState('');
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(false);
 
-  const initGameState = useCallback((width, height) => {
+  const initGameState = useCallback((width, height, started = false) => {
     const groundLine = height - GROUND_BAND;
     const standY = groundLine - RUNNER_FEET_OFFSET;
     return {
@@ -261,6 +262,7 @@ export default function DinoRunnerGame() {
       height,
       groundLine,
       groundY: groundLine,
+      started,
       frame: 0,
       speed: 4.2,
       maxSpeed: 8.5,
@@ -335,9 +337,19 @@ export default function DinoRunnerGame() {
     state.rainbowMode = state.score >= 100;
   };
 
+  const beginPlay = useCallback(async () => {
+    const state = gameRef.current;
+    if (!state || state.started) return;
+    await unlockGameAudio();
+    state.started = true;
+    state.spawnTimer = 0;
+    setAwaitingStart(false);
+    setGameOver(false);
+  }, []);
+
   const jump = useCallback(() => {
     const state = gameRef.current;
-    if (!state || !state.alive) return;
+    if (!state || !state.started || !state.alive) return;
     const runner = state.runner;
     if (runner.onGround && !runner.ducking) {
       runner.vy = state.jumpVelocity;
@@ -383,8 +395,7 @@ export default function DinoRunnerGame() {
     });
   }, []);
 
-  const startGame = useCallback(async () => {
-    await unlockGameAudio();
+  const setupGame = useCallback(async ({ autoStart = false } = {}) => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
@@ -395,9 +406,10 @@ export default function DinoRunnerGame() {
     const ctx = applyCanvasSize(canvas, width, height);
     if (!ctx) return;
 
-    gameRef.current = initGameState(width, height);
+    gameRef.current = initGameState(width, height, autoStart);
     setScore(0);
     setGameOver(false);
+    setAwaitingStart(!autoStart);
     setMilestoneText('');
 
     const loop = () => {
@@ -409,8 +421,19 @@ export default function DinoRunnerGame() {
 
       if (state.shake > 0) state.shake -= 1;
 
+      if (!state.started) {
+        state.groundOffset = (state.groundOffset + 0.35) % 24;
+        state.clouds.forEach((cloud) => {
+          cloud.x -= cloud.speed * 0.25;
+          if (cloud.x < -50) {
+            cloud.x = state.width + randomBetween(10, 80);
+            cloud.y = randomBetween(18, 56);
+          }
+        });
+      }
+
       // Runner physics
-      if (!runner.onGround) {
+      if (state.started && !runner.onGround) {
         runner.vy += state.gravity;
         runner.y += runner.vy;
         if (runner.y >= runner.standY) {
@@ -428,7 +451,7 @@ export default function DinoRunnerGame() {
         height: runner.ducking ? 24 : 34,
       };
 
-      if (state.alive) {
+      if (state.started && state.alive) {
         state.speed = Math.min(state.maxSpeed, state.speed + 0.0015);
         state.groundOffset = (state.groundOffset + state.speed) % 24;
         state.spawnTimer += 1;
@@ -473,13 +496,15 @@ export default function DinoRunnerGame() {
         state.obstacles = state.obstacles.filter((o) => o.x + o.width > -20);
       }
 
-      state.clouds.forEach((cloud) => {
-        cloud.x -= cloud.speed;
-        if (cloud.x < -50) {
-          cloud.x = state.width + randomBetween(10, 80);
-          cloud.y = randomBetween(18, 56);
-        }
-      });
+      if (state.started) {
+        state.clouds.forEach((cloud) => {
+          cloud.x -= cloud.speed;
+          if (cloud.x < -50) {
+            cloud.x = state.width + randomBetween(10, 80);
+            cloud.y = randomBetween(18, 56);
+          }
+        });
+      }
 
       state.particles.forEach((p) => {
         p.x += p.vx;
@@ -549,7 +574,7 @@ export default function DinoRunnerGame() {
         ctx.globalAlpha = 1;
       });
 
-      if (!state.alive) {
+      if (state.started && !state.alive) {
         ctx.fillStyle = 'rgba(0, 10, 61, 0.35)';
         ctx.fillRect(0, 0, state.width, state.height);
       }
@@ -564,15 +589,15 @@ export default function DinoRunnerGame() {
   }, [applyCanvasSize, initGameState, measureCanvas]);
 
   const restartGame = useCallback(() => {
-    startGame();
-  }, [startGame]);
+    setupGame({ autoStart: true });
+  }, [setupGame]);
 
   useEffect(() => {
     mutedRef.current = muted;
   }, [muted]);
 
   useEffect(() => {
-    const boot = window.setTimeout(() => startGame(), 50);
+    const boot = window.setTimeout(() => setupGame({ autoStart: false }), 50);
 
     const handleResize = () => {
       const canvas = canvasRef.current;
@@ -590,17 +615,21 @@ export default function DinoRunnerGame() {
       window.removeEventListener('resize', handleResize);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [applyCanvasSize, measureCanvas, startGame, syncGroundLayout]);
+  }, [applyCanvasSize, measureCanvas, setupGame, syncGroundLayout]);
 
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
+        if (awaitingStart) {
+          beginPlay();
+          return;
+        }
         jump();
       }
       if (e.code === 'ArrowDown') {
         const state = gameRef.current;
-        if (state?.alive) state.runner.ducking = true;
+        if (state?.started && state?.alive) state.runner.ducking = true;
       }
     };
 
@@ -617,12 +646,21 @@ export default function DinoRunnerGame() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [jump]);
+  }, [awaitingStart, beginPlay, jump]);
 
   const handlePointer = async (e) => {
     e.preventDefault();
+    if (awaitingStart) {
+      await beginPlay();
+      return;
+    }
     await unlockGameAudio();
     jump();
+  };
+
+  const handleStartClick = async (e) => {
+    e.stopPropagation();
+    await beginPlay();
   };
 
   return (
@@ -670,6 +708,22 @@ export default function DinoRunnerGame() {
         )}
 
         <canvas ref={canvasRef} className="countdown-dino-canvas" />
+
+        {awaitingStart && !gameOver && (
+          <div className="countdown-dino-start-overlay">
+            <div className="countdown-dino-start-card">
+              <span className="countdown-dino-start-emoji" aria-hidden="true">🏃‍♂️</span>
+              <p className="countdown-dino-start-kicker">Sambil nunggu portal dibuka</p>
+              <h3 className="countdown-dino-start-title">Ayo Mulai!</h3>
+              <p className="countdown-dino-start-desc">Lari, loncat, dan kumpulkan skor sebanyak-banyaknya.</p>
+              <button type="button" onClick={handleStartClick} className="countdown-dino-start-btn">
+                <span className="material-symbols-outlined">play_arrow</span>
+                Main Sekarang
+              </button>
+              <p className="countdown-dino-start-hint">atau tap / tekan spasi</p>
+            </div>
+          </div>
+        )}
 
         {gameOver && (
           <div className="countdown-dino-overlay">
