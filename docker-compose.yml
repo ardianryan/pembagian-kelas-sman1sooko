@@ -32,9 +32,9 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-sman1sooko}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sman1sooko_kelas}
-      PORT: 3000
+      PORT: ${API_PORT:-3005}
       ANNOUNCEMENT_DATE: ${ANNOUNCEMENT_DATE:-2026-07-15T08:00:00+07:00}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5272}
       NODE_ENV: production
     volumes:
       - uploads_data:/app/apps/backend/uploads
@@ -50,8 +50,10 @@ services:
       dockerfile: docker/Dockerfile.web
     image: sman1sooko-kelas-web:latest
     restart: unless-stopped
+    environment:
+      API_PORT: ${API_PORT:-3005}
     ports:
-      - "${HTTP_PORT:-8080}:80"
+      - "${HTTP_PORT:-5272}:80"
     depends_on:
       - api
     networks:

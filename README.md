@@ -51,20 +51,20 @@ npm run db:push
 
 ## Menjalankan Development
 
-Terminal 1 — Backend (port 3000):
+Terminal 1 — Backend (port 3005):
 
 ```bash
 npm run dev:backend
 ```
 
-Terminal 2 — Frontend (port 5173):
+Terminal 2 — Frontend (port 5272):
 
 ```bash
 npm run dev:frontend
 ```
 
-- Portal murid: http://localhost:5173
-- Admin: http://localhost:5173/back-office
+- Portal murid: http://localhost:5272
+- Admin: http://localhost:5272/back-office
 
 ### Login Admin Default
 
@@ -123,7 +123,7 @@ Panduan lengkap Portainer: **[deploy/portainer/README.md](deploy/portainer/READM
 | `npm run docker:down` | Stop stack |
 | `npm run docker:logs` | Lihat log semua service |
 
-Akses default: `http://localhost:8080` (portal + `/back-office`)
+Akses default: `http://localhost:5272` (portal + `/back-office`, API internal `:3005`)
 
 ## API Utama
 

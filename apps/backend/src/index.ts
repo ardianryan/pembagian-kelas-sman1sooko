@@ -898,7 +898,7 @@ app.delete('/api/admin/students', async (c) => {
 });
 
 // Start Hono Node Server
-const port = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || 3005;
 ensureUploadsDir().catch((err) => {
   console.error('Failed to prepare uploads directory:', err);
 });

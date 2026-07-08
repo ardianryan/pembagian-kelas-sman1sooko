@@ -3,9 +3,9 @@
 Stack siap pakai: **PostgreSQL + API + Nginx** dalam satu `docker-compose.yml`.
 
 ```
-Port 8080 (web) → Nginx → React static
-                    ├─ /api     → api:3000
-                    └─ /uploads → api:3000
+Port 5272 (web) → Nginx → React static
+                    ├─ /api     → api:3005
+                    └─ /uploads → api:3005
                               ↓
                          PostgreSQL (db)
 ```
@@ -28,9 +28,10 @@ Port 8080 (web) → Nginx → React static
 
    ```
    POSTGRES_PASSWORD=BuatPasswordKuat123!
-   HTTP_PORT=8080
+   API_PORT=3005
+   HTTP_PORT=5272
    ANNOUNCEMENT_DATE=2026-07-15T08:00:00+07:00
-   FRONTEND_URL=http://IP_VPS:8080
+   FRONTEND_URL=http://IP_VPS:5272
    ```
 
    > `POSTGRES_PASSWORD` **wajib**. Tanpa ini stack gagal deploy.
@@ -83,8 +84,8 @@ docker compose logs -f api
 ```
 
 Akses:
-- Portal murid: `http://IP_VPS:8080/`
-- Admin: `http://IP_VPS:8080/back-office`
+- Portal murid: `http://IP_VPS:5272/`
+- Admin: `http://IP_VPS:5272/back-office`
 
 ---
 
@@ -95,9 +96,10 @@ Akses:
 | `POSTGRES_PASSWORD` | ✅ | — | Password database |
 | `POSTGRES_DB` | | `sman1sooko_kelas` | Nama database |
 | `POSTGRES_USER` | | `sman1sooko` | User database |
-| `HTTP_PORT` | | `8080` | Port publik web |
+| `API_PORT` | | `3005` | Port internal Hono API |
+| `HTTP_PORT` | | `5272` | Port publik web (Vite build via Nginx) |
 | `ANNOUNCEMENT_DATE` | | `2026-07-15T08:00:00+07:00` | Jadwal buka portal |
-| `FRONTEND_URL` | | `http://localhost:8080` | URL untuk CORS |
+| `FRONTEND_URL` | | `http://localhost:5272` | URL untuk CORS |
 
 ---
 
@@ -105,8 +107,8 @@ Akses:
 
 Jika pakai domain `https://kelas.sekolah.sch.id` di depan stack:
 
-1. Set `HTTP_PORT` ke port internal (mis. tetap `8080`)
-2. Proxy manager arahkan domain → `http://host:8080`
+1. Set `HTTP_PORT` ke port internal (default `5272`)
+2. Proxy manager arahkan domain → `http://host:5272`
 3. Update `FRONTEND_URL=https://kelas.sekolah.sch.id`
 4. Redeploy stack (Portainer → Stack → Update)
 

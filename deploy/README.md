@@ -6,7 +6,7 @@ Panduan singkat instalasi production untuk **Portal Pembagian Kelas SMAN 1 Sooko
 
 ```
 Internet → Nginx (aaPanel) → static React (apps/frontend/dist)
-                          → /api, /uploads → PM2 → Hono API (:3000)
+                          → /api, /uploads → PM2 → Hono API (:3005)
                                                     → PostgreSQL
 ```
 
@@ -67,7 +67,7 @@ Isi minimal:
 
 ```env
 DATABASE_URL=postgres://USER:PASS@127.0.0.1:5432/sman1sooko_kelas
-PORT=3000
+PORT=3005
 ANNOUNCEMENT_DATE=2026-07-15T08:00:00+07:00
 FRONTEND_URL=https://kelas.sman1sooko.sch.id
 ```
@@ -116,7 +116,7 @@ Jika memakai fitur Node Project aaPanel, cukup jalankan PM2 manual seperti di at
 ```bash
 pm2 status
 pm2 logs sman1sooko-kelas-api --lines 50
-curl -s http://127.0.0.1:3000/api/countdown | head
+curl -s http://127.0.0.1:3005/api/countdown | head
 ```
 
 ---
@@ -135,7 +135,7 @@ npm run deploy:update
 | Masalah | Solusi |
 |---------|--------|
 | 502 Bad Gateway | `pm2 restart sman1sooko-kelas-api` — cek `pm2 logs` |
-| API tidak bisa diakses | Pastikan Nginx proxy `/api/` ke `127.0.0.1:3000` |
+| API tidak bisa diakses | Pastikan Nginx proxy `/api/` ke `127.0.0.1:3005` |
 | Halaman admin blank setelah refresh | Pastikan `try_files ... /index.html` ada di Nginx |
 | Database error | Cek `DATABASE_URL` di `.env`, PostgreSQL running |
 | Upload logo gagal | Folder `apps/backend/uploads` writable oleh user PM2 |
@@ -146,5 +146,5 @@ npm run deploy:update
 
 - [ ] Ganti password admin default (`admin` / `adminpass@2026`) di kode atau tambahkan env
 - [ ] Aktifkan SSL + force HTTPS
-- [ ] Port 3000 **jangan** dibuka di firewall publik (hanya localhost)
+- [ ] Port 3005 **jangan** dibuka di firewall publik (hanya localhost / internal Docker)
 - [ ] Backup database PostgreSQL rutin via aaPanel
