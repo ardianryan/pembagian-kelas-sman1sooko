@@ -1,0 +1,37 @@
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
+
+RUN npm ci
+
+COPY apps/backend ./apps/backend
+
+RUN npm run build --workspace=apps/backend
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+RUN apk add --no-cache tini
+
+COPY package.json package-lock.json ./
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/apps/backend ./apps/backend
+
+COPY docker/api-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh \
+  && mkdir -p /app/apps/backend/uploads
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+EXPOSE 3000
+
+ENTRYPOINT ["/sbin/tini", "--", "/entrypoint.sh"]

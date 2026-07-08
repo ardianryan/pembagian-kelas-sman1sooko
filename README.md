@@ -101,6 +101,30 @@ Panduan lengkap: **[deploy/README.md](deploy/README.md)**
 | `npm run deploy:install` | Instal pertama kali (build + DB + PM2) |
 | `npm run deploy:update` | Update kode + rebuild + restart API |
 
+## Deploy dengan Docker / Portainer Stack
+
+Satu perintah (setelah `.env` diisi):
+
+```bash
+cp .env.docker.example .env.docker
+# edit POSTGRES_PASSWORD
+docker compose --env-file .env.docker up -d --build
+```
+
+**Portainer:** Stacks → Add stack → Repository →  
+`https://github.com/ardianryan/pembagian-kelas-sman1sooko` → compose path `docker-compose.yml`  
+→ set `POSTGRES_PASSWORD` di environment.
+
+Panduan lengkap Portainer: **[deploy/portainer/README.md](deploy/portainer/README.md)**
+
+| Perintah | Fungsi |
+|----------|--------|
+| `npm run docker:up` | Build & jalankan stack |
+| `npm run docker:down` | Stop stack |
+| `npm run docker:logs` | Lihat log semua service |
+
+Akses default: `http://localhost:8080` (portal + `/back-office`)
+
 ## API Utama
 
 | Endpoint | Deskripsi |

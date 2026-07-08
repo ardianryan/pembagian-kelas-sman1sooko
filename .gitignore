@@ -9,6 +9,8 @@ apps/backend/dist/
 .env
 .env.*
 !.env.example
+!.env.docker.example
+.env.docker
 !apps/frontend/.env.production
 !apps/frontend/.env.development
 

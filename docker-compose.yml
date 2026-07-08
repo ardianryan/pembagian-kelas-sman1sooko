@@ -1,0 +1,66 @@
+# Portal Pembagian Kelas — Docker Stack (Portainer-ready)
+# Deploy: Portainer → Stacks → Add stack → Web editor / Repository
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sman1sooko_kelas}
+      POSTGRES_USER: ${POSTGRES_USER:-sman1sooko}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD di environment stack}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-sman1sooko} -d ${POSTGRES_DB:-sman1sooko_kelas}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - kelas_net
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    image: sman1sooko-kelas-api:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-sman1sooko}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sman1sooko_kelas}
+      PORT: 3000
+      ANNOUNCEMENT_DATE: ${ANNOUNCEMENT_DATE:-2026-07-15T08:00:00+07:00}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      NODE_ENV: production
+    volumes:
+      - uploads_data:/app/apps/backend/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kelas_net
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    image: sman1sooko-kelas-web:latest
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    depends_on:
+      - api
+    networks:
+      - kelas_net
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  kelas_net:
+    driver: bridge

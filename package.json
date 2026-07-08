@@ -15,6 +15,9 @@
     "db:push": "npm run db:push --workspace=apps/backend",
     "db:generate": "npm run db:generate --workspace=apps/backend",
     "deploy:install": "bash deploy/install.sh",
-    "deploy:update": "bash deploy/update.sh"
+    "deploy:update": "bash deploy/update.sh",
+    "docker:up": "docker compose --env-file .env.docker up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   }
 }
