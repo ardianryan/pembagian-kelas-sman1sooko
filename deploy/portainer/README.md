@@ -22,8 +22,11 @@ Port 5272 (web) → Nginx → React static
    |-------|-------|
    | Repository URL | `https://github.com/ardianryan/pembagian-kelas-sman1sooko` |
    | Repository reference | `refs/heads/main` |
-   | Compose path | `docker-compose.yml` |
+   | Compose path | lihat catatan Swarm vs Standalone di bawah |
    | Authentication | *(kosongkan jika repo public)* |
+
+   **Docker Standalone (local):** `docker-compose.yml`  
+   **Docker Swarm:** `docker-compose.swarm.yml` *(build image dulu via SSH, lihat bawah)*
 5. **Environment variables** — tambahkan:
 
    ```
@@ -149,10 +152,27 @@ cat backup.sql | docker compose exec -T db psql -U sman1sooko sman1sooko_kelas
 
 ---
 
+## Docker Swarm (menu Swarm aktif di Portainer)
+
+Swarm **tidak mendukung** `build:` di compose. Langkah:
+
+```bash
+# SSH ke VPS
+git clone https://github.com/ardianryan/pembagian-kelas-sman1sooko.git
+cd pembagian-kelas-sman1sooko
+docker compose -f docker-compose.yml build
+```
+
+Lalu di Portainer set **Compose path** = `docker-compose.swarm.yml` (bukan `docker-compose.yml`).
+
+---
+
 ## Troubleshooting
 
 | Gejala | Perbaikan |
 |--------|-----------|
+| `depends_on must be a list` | Pull repo terbaru; pakai `docker-compose.yml` atau `docker-compose.swarm.yml` |
+| `build` tidak didukung | Anda di Swarm — build dulu via SSH, pakai `docker-compose.swarm.yml` |
 | Stack gagal deploy, error `POSTGRES_PASSWORD` | Isi env `POSTGRES_PASSWORD` di Portainer |
 | `api` restart loop | `docker compose logs api` — cek koneksi DB |
 | Halaman putih / 502 | Tunggu build selesai; cek `docker compose ps` semua healthy |
