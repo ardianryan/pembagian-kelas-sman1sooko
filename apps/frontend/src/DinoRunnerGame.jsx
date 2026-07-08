@@ -655,12 +655,6 @@ export default function DinoRunnerGame() {
         </div>
       </div>
 
-      {milestoneText && (
-        <div className="countdown-dino-milestone animate-spring" role="status">
-          {milestoneText}
-        </div>
-      )}
-
       <div
         ref={containerRef}
         className="countdown-dino-canvas-wrap"
@@ -669,6 +663,12 @@ export default function DinoRunnerGame() {
         tabIndex={0}
         aria-label="Area permainan lari"
       >
+        {milestoneText && (
+          <div className="countdown-dino-milestone" role="status" aria-live="polite">
+            {milestoneText}
+          </div>
+        )}
+
         <canvas ref={canvasRef} className="countdown-dino-canvas" />
 
         {gameOver && (

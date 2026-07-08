@@ -2329,6 +2329,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .countdown-dino-milestone {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 12;
+  transform: translateX(-50%);
+  pointer-events: none;
   text-align: center;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
@@ -2337,6 +2343,27 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.9375rem;
   font-weight: 700;
   box-shadow: 0 4px 14px rgba(255, 211, 0, 0.35);
+  white-space: nowrap;
+  animation: dino-milestone-pop 2.2s ease forwards;
+}
+
+@keyframes dino-milestone-pop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px) scale(0.92);
+  }
+  12% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  78% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px) scale(0.96);
+  }
 }
 
 .countdown-dino-canvas-wrap {
