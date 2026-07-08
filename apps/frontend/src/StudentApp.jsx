@@ -661,7 +661,7 @@ export default function StudentApp() {
     if (!studentData) return null;
 
     const quote = getQuoteForStudent(studentData);
-    const displayName = studentData.nama?.split(' ').slice(0, 2).join(' ') || studentData.nama;
+    const displayName = studentData.nama || '';
     const handleCelebrate = () => {
       unlockCelebrationAudio();
       runCelebration('burst');
@@ -692,7 +692,9 @@ export default function StudentApp() {
                 <span className="material-symbols-outlined filled text-[16px]">verified</span>
                 Lulus Kenaikan Kelas
               </span>
-              <h1 className="student-dash-hero-title">Selamat, {displayName}!</h1>
+              <h1 className="student-dash-hero-title">
+                Selamat, <span className="student-dash-hero-name">{displayName}</span>!
+              </h1>
               <p className="student-dash-hero-desc">
                 Keberhasilan adalah milik mereka yang tekun berjuang.
               </p>
