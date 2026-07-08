@@ -543,7 +543,7 @@ export default function StudentApp() {
 
             <div className="student-login-help">
               <p className="text-body-md text-center text-on-surface-variant">
-                Kesulitan masuk? Hubungi <span className="font-bold text-secondary">{resolveItSupportLabel(branding)}</span> di sekolah.
+                Kesulitan masuk? Hubungi <span className="font-bold text-secondary">{resolveItSupportLabel(branding)}</span>
               </p>
             </div>
           </div>
@@ -895,7 +895,7 @@ export default function StudentApp() {
 
             <div className="help-modal-footer">
               <p className="help-modal-support">
-                Masih butuh bantuan? Hubungi <strong>{resolveItSupportLabel(branding)}</strong> di sekolah.
+                Masih butuh bantuan? Hubungi <strong>{resolveItSupportLabel(branding)}</strong>
               </p>
               <button type="button" onClick={() => setShowHelpModal(false)} className="help-modal-btn">
                 <span className="material-symbols-outlined text-[18px]">check_circle</span>
