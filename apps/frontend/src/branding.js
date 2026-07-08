@@ -14,6 +14,28 @@ export function mergeBranding(data) {
   };
 }
 
+const BRANDING_CACHE_KEY = 'sman1sooko_cached_branding';
+
+export function cacheBrandingForOffline(branding) {
+  try {
+    localStorage.setItem(BRANDING_CACHE_KEY, JSON.stringify(mergeBranding(branding)));
+  } catch {
+    // ignore quota / private mode errors
+  }
+}
+
+export function loadCachedBranding() {
+  try {
+    const raw = localStorage.getItem(BRANDING_CACHE_KEY);
+    if (raw) {
+      return mergeBranding(JSON.parse(raw));
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return DEFAULT_BRANDING;
+}
+
 export function resolveItSupportLabel(branding) {
   const custom = String(branding?.itTeamLabel ?? '').trim();
   if (custom) return custom;

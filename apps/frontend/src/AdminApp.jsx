@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL, DEFAULT_BRANDING } from './constants';
-import { applyBrandingToDocument, fetchBranding, mergeBranding, resolveItSupportLabel, resolveLogoUrl } from './branding';
+import { applyBrandingToDocument, cacheBrandingForOffline, fetchBranding, mergeBranding, resolveItSupportLabel, resolveLogoUrl } from './branding';
 
 export default function AdminApp() {
   // App views: 'loading' | 'login' | 'dashboard'
@@ -138,6 +138,7 @@ export default function AdminApp() {
   const applyBrandingState = (data) => {
     const merged = mergeBranding(data);
     setBranding(merged);
+    cacheBrandingForOffline(merged);
     setBrandingForm({
       schoolName: merged.schoolName,
       schoolTagline: merged.schoolTagline,

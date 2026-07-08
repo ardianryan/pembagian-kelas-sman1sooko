@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { API_URL, CLASS_TIPS, TRIVIA_DATA, DEFAULT_BRANDING, getQuoteForStudent } from './constants';
-import { applyBrandingToDocument, mergeBranding, resolveItSupportLabel, resolveLogoUrl } from './branding';
+import { applyBrandingToDocument, cacheBrandingForOffline, mergeBranding, resolveItSupportLabel, resolveLogoUrl } from './branding';
 import { playCelebrationSound, unlockCelebrationAudio } from './celebrationSound';
+import DinoRunnerGame from './DinoRunnerGame';
 
 export default function StudentApp() {
   // App views: 'loading' | 'countdown' | 'login' | 'student-dashboard'
@@ -182,7 +183,9 @@ export default function StudentApp() {
       setTargetDate(countdownData.targetDate);
       setIsOpened(countdownData.isOpened);
       if (countdownData.branding) {
-        setBranding(mergeBranding(countdownData.branding));
+        const mergedBranding = mergeBranding(countdownData.branding);
+        setBranding(mergedBranding);
+        cacheBrandingForOffline(mergedBranding);
       }
 
       // Restore Student session if token exists and portal is opened
@@ -210,8 +213,8 @@ export default function StudentApp() {
       } else {
         setView('countdown');
       }
-    } catch (err) {
-      setError('Gagal terhubung ke API server. Menggunakan mode demonstrasi luring.');
+    } catch {
+      setError('Gagal terhubung ke server portal.');
       setView('login');
     }
   };
@@ -385,6 +388,8 @@ export default function StudentApp() {
               </div>
             ))}
           </section>
+
+          <DinoRunnerGame />
 
           <section className="countdown-info-panel">
             <div className="countdown-info-top">
