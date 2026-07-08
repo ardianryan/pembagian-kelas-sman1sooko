@@ -1621,10 +1621,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
 
-.student-login-help-support {
-  margin: 0;
-}
-
 .help-modal-btn {
   display: inline-flex;
   align-items: center;
