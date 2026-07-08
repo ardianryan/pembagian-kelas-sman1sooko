@@ -364,8 +364,9 @@ export default function DinoRunnerGame() {
     const container = containerRef.current;
     if (!container) return null;
     const rect = container.getBoundingClientRect();
-    const width = Math.max(320, Math.floor(rect.width));
-    const height = Math.max(240, Math.floor(rect.height || width * 0.3));
+    const width = Math.max(280, Math.floor(rect.width));
+    const vhFallback = typeof window !== 'undefined' ? window.innerHeight * 0.38 : width * 0.5;
+    const height = Math.max(210, Math.floor(rect.height || vhFallback));
     return { width, height };
   }, []);
 
@@ -671,7 +672,10 @@ export default function DinoRunnerGame() {
             <span className="material-symbols-outlined">sports_esports</span>
             Lari Sambil Nunggu
           </h2>
-          <p className="countdown-dino-game-desc">Tap, klik, atau tekan spasi untuk loncat. Hindari rintangan!</p>
+          <p className="countdown-dino-game-desc">
+            <span className="countdown-dino-game-desc-full">Tap, klik, atau tekan spasi untuk loncat. Hindari rintangan!</span>
+            <span className="countdown-dino-game-desc-short">Tap layar untuk loncat &amp; hindari rintangan</span>
+          </p>
         </div>
         <div className="countdown-dino-game-stats">
           <div className="countdown-dino-stat">
@@ -739,11 +743,15 @@ export default function DinoRunnerGame() {
 
       </div>
 
-      <div className="countdown-dino-controls">
+      <div className="countdown-dino-controls countdown-dino-controls--desktop">
         <span><kbd>Spasi</kbd> / <kbd>↑</kbd> loncat</span>
         <span><kbd>↓</kbd> merunduk</span>
         <span>Tap layar untuk loncat</span>
       </div>
+
+      {!awaitingStart && !gameOver && (
+        <p className="countdown-dino-mobile-hint">Tap area game untuk loncat</p>
+      )}
     </section>
   );
 }
