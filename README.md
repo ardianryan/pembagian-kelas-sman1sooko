@@ -94,4 +94,4 @@ npm run build:frontend
 
 ## Lisensi
 
-Proyek internal SMAN 1 Sooko Mojokerto.
+Lihat [LICENSE](LICENSE) (MIT). Proyek internal SMAN 1 Sooko Mojokerto.
