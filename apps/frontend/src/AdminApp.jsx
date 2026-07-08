@@ -44,6 +44,12 @@ export default function AdminApp() {
   // Student CRUD modals
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentForm, setStudentForm] = useState({
     urut: '',
@@ -388,6 +394,72 @@ export default function AdminApp() {
     }
   };
 
+  const resetPasswordForm = () => {
+    setPasswordForm({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
+  };
+
+  const handleOpenChangePassword = () => {
+    resetPasswordForm();
+    setError('');
+    setSuccessMsg('');
+    setShowChangePasswordModal(true);
+  };
+
+  const handleCloseChangePassword = () => {
+    setShowChangePasswordModal(false);
+    resetPasswordForm();
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+
+    const { currentPassword, newPassword, confirmPassword } = passwordForm;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setError('Semua kolom password wajib diisi.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError('Password baru minimal 8 karakter.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Konfirmasi password baru tidak cocok.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API_URL}/admin/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Gagal mengganti password.');
+
+      handleCloseChangePassword();
+      setSuccessMsg(result.message || 'Password admin berhasil diperbarui.');
+      setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Admin session logout clearing
   const handleAdminLogout = () => {
     localStorage.removeItem('sman1sooko_admin_token');
@@ -696,6 +768,71 @@ export default function AdminApp() {
     fetchAdminStudentsList(adminToken, page, searchQuery, filterClass);
   };
 
+  function renderChangePasswordModal() {
+    const field = (label, input) => (
+      <div className="flex flex-col gap-1.5">
+        <label className="admin-form-label">{label}</label>
+        {input}
+      </div>
+    );
+
+    return (
+      <div className="admin-modal-overlay animate-fadeIn">
+        <div className="bento-card no-hover max-w-md w-full p-6 text-left shadow-2xl">
+          <h3 className="text-title-lg text-primary flex items-center gap-2 border-b border-outline-variant pb-4 mb-5">
+            <span className="material-symbols-outlined text-secondary">lock_reset</span>
+            Ganti Password Admin
+          </h3>
+
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            {field('Password Saat Ini', (
+              <input
+                type="password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                required
+                autoComplete="current-password"
+                className="input-taktil input-taktil--sm"
+              />
+            ))}
+
+            {field('Password Baru', (
+              <input
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                required
+                minLength={8}
+                autoComplete="new-password"
+                placeholder="Minimal 8 karakter"
+                className="input-taktil input-taktil--sm"
+              />
+            ))}
+
+            {field('Konfirmasi Password Baru', (
+              <input
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                required
+                minLength={8}
+                autoComplete="new-password"
+                className="input-taktil input-taktil--sm"
+              />
+            ))}
+
+            <div className="flex gap-3 pt-4 border-t border-outline-variant">
+              <button type="button" onClick={handleCloseChangePassword} className="btn-ghost flex-1 !py-3">Batal</button>
+              <button type="submit" disabled={loading} className="spring-button btn-primary flex-1 !min-h-0 !py-3 !text-body-md">
+                {loading ? 'Menyimpan...' : 'Simpan Password'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   function renderStudentModal(mode, title, icon, onSubmit, onClose) {
     const field = (label, input) => (
       <div className="flex flex-col gap-1.5">
@@ -923,9 +1060,20 @@ export default function AdminApp() {
               ADMIN_TAB_META[adminActiveTab]?.title,
               ADMIN_TAB_META[adminActiveTab]?.desc
             )}
-            <div className="admin-topbar-date">
-              <span className="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
-              <span className="text-label-md text-on-surface font-semibold">{currentDate}</span>
+            <div className="admin-topbar-actions">
+              <button
+                type="button"
+                onClick={handleOpenChangePassword}
+                className="admin-topbar-password-btn"
+                title="Ganti password admin"
+              >
+                <span className="material-symbols-outlined text-[20px]">lock_reset</span>
+                <span className="hidden sm:inline">Ganti Password</span>
+              </button>
+              <div className="admin-topbar-date">
+                <span className="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
+                <span className="text-label-md text-on-surface font-semibold">{currentDate}</span>
+              </div>
             </div>
           </header>
 
@@ -1701,6 +1849,8 @@ export default function AdminApp() {
       {showAddModal && renderStudentModal('add', 'Tambah Murid Baru', 'person_add', handleAddStudent, () => setShowAddModal(false))}
 
       {showEditModal && renderStudentModal('edit', 'Edit Data Murid', 'edit_note', handleEditStudent, () => setShowEditModal(false))}
+
+      {showChangePasswordModal && renderChangePasswordModal()}
 
     </div>
   );

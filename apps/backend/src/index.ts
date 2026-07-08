@@ -13,6 +13,11 @@ import { getQuoteIndexForStudent } from './quoteIndex.js';
 import { buildImportTemplateBuffer, IMPORT_TEMPLATE_FILENAME } from './importTemplate.js';
 import { getPortalSettings, savePortalSettings } from './portalSettings.js';
 import { mapClassmatesForStudent } from './classmates.js';
+import {
+  ADMIN_SESSION_TOKEN,
+  changeAdminPassword,
+  verifyAdminCredentials,
+} from './adminAuth.js';
 
 dotenv.config();
 
@@ -42,7 +47,7 @@ async function ensureUploadsDir() {
 }
 
 function isAdminAuthorized(auth: string | undefined) {
-  return auth === 'Bearer admin-secret-session-token';
+  return auth === `Bearer ${ADMIN_SESSION_TOKEN}`;
 }
 
 async function getStudentFromAuthHeader(auth: string | undefined) {
@@ -310,9 +315,12 @@ app.get('/api/auth/classmates', async (c) => {
 // 4. Endpoint: Admin authenticate login
 app.post('/api/admin/login', async (c) => {
   const { username, password } = await c.req.json();
-  
-  if (username === 'admin' && password === 'adminpass@2026') {
-    return c.json({ success: true, token: 'admin-secret-session-token' });
+  const normalizedUsername = String(username || '').trim();
+  const normalizedPassword = String(password || '');
+
+  const valid = await verifyAdminCredentials(normalizedUsername, normalizedPassword);
+  if (valid) {
+    return c.json({ success: true, token: ADMIN_SESSION_TOKEN });
   }
 
   return c.json({ error: 'Username atau Password admin salah!' }, 401);
@@ -321,10 +329,27 @@ app.post('/api/admin/login', async (c) => {
 // 5. Endpoint: Verify admin session
 app.get('/api/admin/me', async (c) => {
   const auth = c.req.header('Authorization');
-  if (auth === 'Bearer admin-secret-session-token') {
+  if (isAdminAuthorized(auth)) {
     return c.json({ success: true, user: 'admin' });
   }
   return c.json({ error: 'Akses ditolak.' }, 401);
+});
+
+// 5b. Endpoint: Change admin password
+app.post('/api/admin/change-password', async (c) => {
+  const auth = c.req.header('Authorization');
+  if (!isAdminAuthorized(auth)) {
+    return c.json({ error: 'Akses ditolak. Tidak ada otorisasi admin.' }, 403);
+  }
+
+  const body = await c.req.json();
+  const result = await changeAdminPassword(body.currentPassword, body.newPassword);
+
+  if (!result.ok) {
+    return c.json({ error: result.error }, 400);
+  }
+
+  return c.json({ success: true, message: 'Password admin berhasil diperbarui.' });
 });
 
 // 6a. Endpoint: Read branding settings (admin)
