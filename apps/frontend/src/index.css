@@ -2226,6 +2226,226 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--secondary);
 }
 
+/* ─── Countdown mini game (dino runner) ─── */
+.countdown-dino-game {
+  width: 100%;
+  margin: 0;
+  padding: var(--student-space-4);
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--student-space-4);
+}
+
+@media (min-width: 768px) {
+  .countdown-dino-game {
+    padding: var(--student-space-5);
+  }
+}
+
+.countdown-dino-game-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--student-space-4);
+}
+
+.countdown-dino-game-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.countdown-dino-game-title .material-symbols-outlined {
+  color: var(--secondary);
+  font-size: 1.375rem;
+}
+
+.countdown-dino-game-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+}
+
+.countdown-dino-game-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.countdown-dino-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  background-color: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+}
+
+.countdown-dino-stat-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+.countdown-dino-stat-value {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--secondary);
+  line-height: 1.2;
+}
+
+.countdown-dino-mute-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--outline-variant);
+  border-radius: 9999px;
+  background-color: var(--surface-container-lowest);
+  color: var(--secondary);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.countdown-dino-mute-btn:hover {
+  background-color: var(--surface-container-low);
+  border-color: var(--secondary-container);
+}
+
+.countdown-dino-milestone {
+  text-align: center;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ffd300 0%, #ff9f1c 100%);
+  color: var(--primary);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(255, 211, 0, 0.35);
+}
+
+.countdown-dino-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: clamp(240px, 30vw, 300px);
+  border-radius: 0.875rem;
+  overflow: hidden;
+  border: 2px solid var(--outline-variant);
+  background-color: #b9e6ff;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.countdown-dino-canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.countdown-dino-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(0, 10, 61, 0.55);
+  backdrop-filter: blur(2px);
+  text-align: center;
+}
+
+.countdown-dino-overlay--hint {
+  background: rgba(0, 10, 61, 0.25);
+  pointer-events: none;
+}
+
+.countdown-dino-overlay--hint p {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.countdown-dino-overlay-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.countdown-dino-overlay-score {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.countdown-dino-overlay-score strong {
+  color: var(--color-accent-gold);
+  font-size: 1.125rem;
+}
+
+.countdown-dino-restart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ffd300 0%, #ff9f1c 100%);
+  color: var(--primary);
+  font-family: var(--font-family);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 211, 0, 0.4);
+  transition: transform 0.15s ease;
+}
+
+.countdown-dino-restart-btn:hover {
+  transform: scale(1.03);
+}
+
+.countdown-dino-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+}
+
+.countdown-dino-controls kbd {
+  display: inline-block;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--outline-variant);
+  background-color: var(--surface-container-low);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
 .countdown-toast {
   display: inline-flex;
   align-items: center;
